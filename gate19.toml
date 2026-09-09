@@ -1,0 +1,16 @@
+# Gate19 Configuration — example for the Gate19 project itself
+python = "3.11"
+template = "library"
+auto_install = true
+auto_format = true
+auto_test = true
+
+[cache]
+enabled = true
+dir = "~/.cache/gate19"
+ttl = 3600
+
+[resolver]
+parallel = true
+cache_ttl = 3600
+max_workers = 8
