@@ -40,11 +40,21 @@ def python_use(
 
 @python_app.command("remove")
 def python_remove(
-    version: str = typer.Argument(..., help="Python version to remove"),
+    version: Optional[str] = typer.Argument(None, help="Python version to remove (default: project python)"),
 ):
     """Remove an installed Python version. 🗑️"""
     mgr = PythonManager()
-    # Also support `gate19 python remove` without arg? spec says no arg
+    if not version:
+        # Try to infer from project config
+        from gate19.config.manager import load_config
+        from pathlib import Path
+        try:
+            cfg = load_config(Path.cwd())
+            version = cfg.python
+            console.print(f"[dim]No version specified — using project python {version}[/]")
+        except Exception:
+            console.print("[red]Please specify a version: gate19 python remove 3.13[/]")
+            raise typer.Exit(1)
     ok = mgr.remove(version)
     if not ok:
         raise typer.Exit(1)
@@ -52,10 +62,8 @@ def python_remove(
 # Alias for `uninstall`
 @python_app.command("uninstall")
 def python_uninstall(
-    version: str = typer.Argument(..., help="Python version to remove"),
+    version: Optional[str] = typer.Argument(None, help="Python version to remove"),
 ):
     """Alias for remove."""
-    mgr = PythonManager()
-    ok = mgr.remove(version)
-    if not ok:
-        raise typer.Exit(1)
+    # delegate to remove
+    python_remove(version)
